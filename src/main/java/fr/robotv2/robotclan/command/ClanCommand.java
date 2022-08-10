@@ -37,7 +37,6 @@ public class ClanCommand {
 
     private final Cache<UUID, Clan> invites = CacheBuilder.newBuilder()
             .expireAfterWrite(20, TimeUnit.SECONDS)
-            .expireAfterAccess(10, TimeUnit.MILLISECONDS)
             .build();
 
     @Subcommand("create")
@@ -212,6 +211,7 @@ public class ClanCommand {
 
         if(this.invites.asMap().containsKey(target.getUniqueId())) {
             actor.reply(ChatColor.RED + "The target as already an invitation pending.");
+            return;
         }
 
         this.invites.put(target.getUniqueId(), clan);
