@@ -13,6 +13,9 @@ import java.util.UUID;
 @DatabaseTable(tableName = "robotclan_claims")
 public final class Claim {
 
+    @DatabaseField(generatedId = true)
+    private long id;
+
     @DatabaseField(columnName = "worldName")
     private String worldName;
 
