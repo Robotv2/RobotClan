@@ -1,0 +1,4 @@
+name: RobotClan
+version: '${project.version}'
+main: fr.robotv2.robotclan.RobotClan
+authors: [ Robotv2 ]
