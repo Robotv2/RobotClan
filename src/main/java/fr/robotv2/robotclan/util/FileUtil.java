@@ -17,7 +17,7 @@ public class FileUtil {
 
         try {
             if(!file.getParentFile().exists()) {
-                file.mkdirs();
+                file.getParentFile().mkdirs();
             }
 
             file.createNewFile();

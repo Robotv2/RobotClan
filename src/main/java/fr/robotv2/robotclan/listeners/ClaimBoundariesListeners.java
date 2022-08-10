@@ -41,11 +41,11 @@ public class ClaimBoundariesListeners extends ClaimListener{
             }
 
             if(claimFrom != null) {
-                this.onEnter(player, claimFrom);
+                this.onQuit(player, claimFrom);
             }
 
             if(claimTo != null) {
-                this.onQuit(player, claimTo);
+                this.onEnter(player, claimTo);
             }
         }
     }
