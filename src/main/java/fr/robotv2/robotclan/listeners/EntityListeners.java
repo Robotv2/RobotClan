@@ -1,6 +1,7 @@
 package fr.robotv2.robotclan.listeners;
 
 import fr.robotv2.robotclan.RobotClan;
+import fr.robotv2.robotclan.flag.ClaimFlag;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,13 +16,17 @@ public class EntityListeners extends ClaimListener {
     @EventHandler
     public void onDamage(EntityDamageByEntityEvent event) {
 
-        if(!(event.getDamager() instanceof Player player)) {
+        if(!(event.getDamager() instanceof Player damager)) {
             return;
         }
 
         final Entity ent = event.getEntity();
 
-        if(this.needCancel(ent.getLocation(), player)) {
+        if(ent instanceof Player victim) {
+            if(this.needCancel(victim.getLocation(), damager, ClaimFlag.PVP)) {
+                event.setCancelled(true);
+            }
+        } else if(this.needCancel(ent.getLocation(), damager, ClaimFlag.PVE)){
             event.setCancelled(true);
         }
     }

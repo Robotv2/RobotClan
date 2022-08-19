@@ -1,6 +1,7 @@
 package fr.robotv2.robotclan.listeners;
 
 import fr.robotv2.robotclan.RobotClan;
+import fr.robotv2.robotclan.flag.ClaimFlag;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityPickupItemEvent;
@@ -14,7 +15,7 @@ public class ItemListeners extends ClaimListener {
 
     @EventHandler
     public void onDrop(PlayerDropItemEvent event) {
-        if(this.needCancel(event.getPlayer().getLocation(), event.getPlayer())) {
+        if(this.needCancel(event.getPlayer().getLocation(), event.getPlayer(), ClaimFlag.DROP)) {
             event.setCancelled(true);
         }
     }
@@ -22,11 +23,11 @@ public class ItemListeners extends ClaimListener {
     @EventHandler
     public void onPickUp(EntityPickupItemEvent event) {
 
-        if(!(event.getEntity() instanceof Player)) {
+        if(!(event.getEntity() instanceof Player player)) {
             return;
         }
 
-        if(this.needCancel(event.getItem().getLocation(), (Player) event.getEntity())) {
+        if(this.needCancel(event.getItem().getLocation(), player, ClaimFlag.PICKUP)) {
             event.setCancelled(true);
         }
     }

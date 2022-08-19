@@ -4,18 +4,18 @@ import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import fr.robotv2.robotclan.RobotClan;
+import fr.robotv2.robotclan.flag.ClaimFlag;
+import fr.robotv2.robotclan.flag.Role;
 import fr.robotv2.robotclan.serializable.SerializableInventory;
 import fr.robotv2.robotclan.serializable.SerializableLocation;
+import fr.robotv2.robotclan.util.ColorUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @DatabaseTable(tableName = "robotclan_clans")
@@ -35,6 +35,9 @@ public final class Clan {
 
     @DatabaseField(columnName = "bank")
     private double bank;
+
+    @DatabaseField(columnName = "claim_flags", dataType = DataType.SERIALIZABLE)
+    private final HashMap<ClaimFlag, Role> claimFlags = new HashMap<>();
 
     @DatabaseField(columnName = "officiers", dataType = DataType.SERIALIZABLE)
     private final ArrayList<UUID> officiers = new ArrayList<>();
@@ -82,10 +85,6 @@ public final class Clan {
 
     public UUID getOwner() {
         return owner;
-    }
-
-    public boolean isOwner(Player player) {
-        return isOwner(player.getUniqueId());
     }
 
     public boolean isOwner(UUID uuid) {
@@ -136,6 +135,41 @@ public final class Clan {
         }
     }
 
+    public boolean hasRole(UUID playerUUID, Role role) {
+        return switch (role) {
+            case VISITOR -> true;
+            case MEMBER -> hasAccess(playerUUID);
+            case OFFICIER -> isOfficier(playerUUID) || isOwner(playerUUID);
+            case OWNER -> isOwner(playerUUID);
+        };
+    }
+
+    // <<- FLAGS ->>
+
+    public void setRequiredRole(ClaimFlag flag, Role role) {
+        this.claimFlags.put(flag, role);
+    }
+
+    @Nullable
+    public Role getRequiredRole(ClaimFlag flag) {
+        return this.claimFlags.getOrDefault(flag, flag.getDefault());
+    }
+
+    public boolean checkFlag(Player player, ClaimFlag flag) {
+
+        final Role required = getRequiredRole(flag);
+        if(required == null) {
+            return true;
+        }
+
+        return switch (required) {
+            case VISITOR -> true;
+            case MEMBER -> hasAccess(player.getUniqueId());
+            case OFFICIER -> isOfficier(player.getUniqueId()) || isOwner(player.getUniqueId());
+            case OWNER -> isOwner(player.getUniqueId());
+        };
+    }
+
     // <<- BANK
 
     public Double getBankValue() {
@@ -183,7 +217,7 @@ public final class Clan {
         return this.inventory.getInventory();
     }
 
-    // <<- UTILITY ->>
+    // <<- CHAT ->>
 
     public void sendMessage(String message) {
         final Player owner = Bukkit.getPlayer(getOwner());
@@ -197,6 +231,15 @@ public final class Clan {
                 .filter(Objects::nonNull)
                 .forEach(player -> player.sendMessage(message));
     }
+
+    public void chat(Player player, String message) {
+        final String format = ColorUtil.color("&b" + getName() + " &f" + player.getName() + ": &7");
+        this.sendMessage(format + message);
+    }
+
+    // <<- UTILITY ->>
+
+
 
     public boolean hasAccess(Player player) {
         return hasAccess(player.getUniqueId());

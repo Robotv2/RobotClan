@@ -1,6 +1,7 @@
 package fr.robotv2.robotclan.listeners;
 
 import fr.robotv2.robotclan.RobotClan;
+import fr.robotv2.robotclan.flag.ClaimFlag;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
@@ -13,7 +14,7 @@ public class InteractListeners extends ClaimListener {
     }
 
     @EventHandler
-    public void interact(PlayerInteractEvent event) {
+    public void onInteractRelative(PlayerInteractEvent event) {
         if(event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             final Block block = event.getClickedBlock();
 
@@ -21,8 +22,28 @@ public class InteractListeners extends ClaimListener {
                 return;
             }
 
-            if(this.needCancel(block.getRelative(event.getBlockFace()).getLocation(), event.getPlayer())) {
+            if(this.needCancel(block.getRelative(event.getBlockFace()).getLocation(), event.getPlayer(), ClaimFlag.BLOCK_PLACE)) {
                 event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onInteractWithTileEntity(PlayerInteractEvent event) {
+
+        if(event.isCancelled()) {
+            return;
+        }
+
+        if(event.getClickedBlock() == null) {
+            return;
+        }
+
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            if(!event.isBlockInHand()) {
+                if(this.needCancel(event.getClickedBlock().getLocation(), event.getPlayer(), ClaimFlag.INTERACT)) {
+                    event.setCancelled(true);
+                }
             }
         }
     }

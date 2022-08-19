@@ -2,7 +2,7 @@ package fr.robotv2.robotclan;
 
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.support.ConnectionSource;
-import fr.robotv2.robotclan.command.ClanCommand;
+import fr.robotv2.robotclan.command.*;
 import fr.robotv2.robotclan.data.OrmData;
 import fr.robotv2.robotclan.listeners.*;
 import fr.robotv2.robotclan.manager.ClaimManager;
@@ -10,6 +10,7 @@ import fr.robotv2.robotclan.manager.ClanManager;
 import fr.robotv2.robotclan.objects.Claim;
 import fr.robotv2.robotclan.objects.Clan;
 import fr.robotv2.robotclan.util.FileUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import revxrsal.commands.bukkit.BukkitCommandHandler;
@@ -38,14 +39,20 @@ public final class RobotClan extends JavaPlugin {
         this.setupCommands();
         this.setupListeners();
         this.setupDataManager();
+
+        Bukkit.getScheduler().runTaskTimer(this, this::saveAll, 20 * 60, 20 * 60);
     }
 
     @Override
     public void onDisable() {
-        getClanManager().getClans().forEach(getClanData()::save);
-        getClaimManager().getClaims().stream().filter(Claim::isValid).forEach(getClaimData()::save);
+        this.saveAll();
         getClaimData().closeConnection();
         instance = null;
+    }
+
+    public void saveAll() {
+        getClanManager().getClans().forEach(getClanData()::save);
+        getClaimManager().getClaims().stream().filter(Claim::isValid).forEach(getClaimData()::save);
     }
 
     // <<- GETTERS ->>
@@ -72,7 +79,12 @@ public final class RobotClan extends JavaPlugin {
         final BukkitCommandHandler handler = BukkitCommandHandler.create(this);
         handler.registerDependency(ClanManager.class, this.clanManager);
         handler.registerDependency(ClaimManager.class, this.claimManager);
+
         handler.register(new ClanCommand());
+        handler.register(new ClanInviteCommand());
+        handler.register(new ClanClaimCommand());
+        handler.register(new ClanChatCommand());
+        handler.register(new ClanFlagCommand());
     }
 
     private void setupListeners() {

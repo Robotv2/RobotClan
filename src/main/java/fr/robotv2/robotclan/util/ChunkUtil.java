@@ -9,7 +9,7 @@ import java.util.Queue;
 public class ChunkUtil {
 
     public static Queue<Chunk> getChunksAround(Chunk chunk) {
-        int[] offset = {-2, -1, 0, 1, 2};
+        int[] offset = {2, 1, 0, -1, -2};
 
         final World world = chunk.getWorld();
         final int baseX = chunk.getX();

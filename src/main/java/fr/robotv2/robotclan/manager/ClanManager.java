@@ -5,11 +5,7 @@ import fr.robotv2.robotclan.objects.Clan;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ClanManager {
@@ -29,14 +25,16 @@ public class ClanManager {
     public Clan getClan(String clanName) {
         return getClans().stream()
                 .filter(clan -> clan.getName().equalsIgnoreCase(clanName))
-                .findFirst().orElse(null);
+                .findFirst()
+                .orElse(null);
     }
 
     @Nullable
     public Clan getClan(Player player) {
         return getClans().stream()
                 .filter(clan -> clan.hasAccess(player))
-                .findFirst().orElse(null);
+                .findFirst()
+                .orElse(null);
     }
 
     public boolean hasClan(Player player) {

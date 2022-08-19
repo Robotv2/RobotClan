@@ -1,6 +1,7 @@
 package fr.robotv2.robotclan.listeners;
 
 import fr.robotv2.robotclan.RobotClan;
+import fr.robotv2.robotclan.flag.ClaimFlag;
 import fr.robotv2.robotclan.objects.Claim;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -18,13 +19,13 @@ public abstract class ClaimListener implements Listener {
         return instance;
     }
 
-    public boolean needCancel(@Nullable Location location, Player player) {
+    public boolean needCancel(@Nullable Location location, Player player, ClaimFlag flag) {
 
         if(location == null) {
             return false;
         }
 
         final Claim claim = getPlugin().getClaimManager().getClaim(location.getChunk());
-        return (claim != null) && !claim.getClan().hasAccess(player);
+        return (claim != null) && !claim.getClan().checkFlag(player, flag);
     }
 }
