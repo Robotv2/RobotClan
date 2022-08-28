@@ -28,14 +28,11 @@ public class OrmData<D, ID> {
 
     public List<D> getValues() throws Exception {
         final LinkedList<D> result = new LinkedList<>();
-        final CloseableIterator<D> iterator = getDao().closeableIterator();
-        try {
+        try (CloseableIterator<D> iterator = getDao().closeableIterator()) {
             while (iterator.hasNext()) {
                 final D value = iterator.next();
                 result.add(value);
             }
-        } finally {
-            iterator.close();
         }
 
         return result;

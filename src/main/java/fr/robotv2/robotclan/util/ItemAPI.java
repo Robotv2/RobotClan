@@ -8,11 +8,11 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.lang.reflect.Field;
@@ -31,8 +31,9 @@ public class ItemAPI {
     }
 
     public static ItemStack getHead(UUID playerUUID) {
-        if(heads.containsKey(playerUUID.toString()))
+        if(heads.containsKey(playerUUID.toString())) {
             return heads.get(playerUUID.toString());
+        }
 
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) head.getItemMeta();

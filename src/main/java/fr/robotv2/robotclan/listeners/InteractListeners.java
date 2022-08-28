@@ -31,20 +31,15 @@ public class InteractListeners extends ClaimListener {
     @EventHandler
     public void onInteractWithTileEntity(PlayerInteractEvent event) {
 
-        if(event.isCancelled()) {
+        if(event.isCancelled() ||
+                event.getClickedBlock() == null ||
+                event.getAction() != Action.RIGHT_CLICK_BLOCK ||
+                event.isBlockInHand()) {
             return;
         }
 
-        if(event.getClickedBlock() == null) {
-            return;
-        }
-
-        if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            if(!event.isBlockInHand()) {
-                if(this.needCancel(event.getClickedBlock().getLocation(), event.getPlayer(), ClaimFlag.INTERACT)) {
-                    event.setCancelled(true);
-                }
-            }
+        if(this.needCancel(event.getClickedBlock().getLocation(), event.getPlayer(), ClaimFlag.INTERACT)) {
+            event.setCancelled(true);
         }
     }
 }

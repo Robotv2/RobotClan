@@ -1,6 +1,8 @@
 package fr.robotv2.robotclan.command;
 
 import fr.robotv2.robotclan.RobotClan;
+import fr.robotv2.robotclan.condition.annotation.RequireClan;
+import fr.robotv2.robotclan.condition.annotation.RequireRole;
 import fr.robotv2.robotclan.flag.Role;
 import fr.robotv2.robotclan.manager.ClaimManager;
 import fr.robotv2.robotclan.manager.ClanManager;
@@ -9,15 +11,10 @@ import fr.robotv2.robotclan.objects.Clan;
 import fr.robotv2.robotclan.task.ShowParticleTask;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
-import revxrsal.commands.annotation.Command;
-import revxrsal.commands.annotation.Dependency;
-import revxrsal.commands.annotation.Optional;
-import revxrsal.commands.annotation.Subcommand;
-import revxrsal.commands.annotation.Usage;
+import revxrsal.commands.annotation.*;
 import revxrsal.commands.bukkit.BukkitCommandActor;
 
 import java.util.ArrayList;
@@ -53,23 +50,14 @@ public class ClanCommand {
         actor.reply(ChatColor.GREEN + "You created your new clan successfully.");
     }
 
+    @RequireClan
+    @RequireRole(role = Role.OWNER)
     @Subcommand("disband")
     @Usage("disband")
     public void onDisband(BukkitCommandActor actor) {
+
         final Player player = actor.requirePlayer();
-
-        if(!clanManager.hasClan(player)) {
-            actor.reply(ChatColor.RED + "You aren't in any clan.");
-            return;
-        }
-
         final Clan clan = Objects.requireNonNull(clanManager.getClan(player));
-
-        if(!clan.hasRole(player.getUniqueId(), Role.OWNER)) {
-            actor.reply(ChatColor.RED + "You're not the owner of this clan.");
-            return;
-        }
-
         clanManager.unregisterClan(clan, true);
 
         for(Claim claim : clan.getClaims()) {
@@ -108,18 +96,13 @@ public class ClanCommand {
         new ShowParticleTask(player).runTaskTimer(RobotClan.get(), 10, 10);
     }
 
+    @RequireClan
     @Subcommand("description")
     @Usage("description <description>")
     public void onDescription(BukkitCommandActor actor, @Optional String description) {
 
         final Player player = actor.requirePlayer();
         final UUID playerUUID = player.getUniqueId();
-
-        if(!clanManager.hasClan(player)) {
-            actor.reply(ChatColor.RED + "You aren't in any clan.");
-            return;
-        }
-
         final Clan clan = Objects.requireNonNull(clanManager.getClan(player));
 
         if(description == null) {
@@ -140,53 +123,33 @@ public class ClanCommand {
         actor.reply(ChatColor.GREEN + "The description of your clan has been successfully changed.");
     }
 
+    @RequireClan
     @Subcommand("chest")
     @Usage("chest")
     public void onChest(BukkitCommandActor actor) {
         final Player player = actor.requirePlayer();
-
-        if(!clanManager.hasClan(player)) {
-            actor.reply(ChatColor.RED + "You aren't in any clan.");
-            return;
-        }
-
         final Clan clan = clanManager.getClan(player);
         Objects.requireNonNull(clan).openInventory(player);
     }
 
+    @RequireClan
+    @RequireRole(role = Role.OFFICIER)
     @Subcommand("setbase")
     @Usage("setbase")
     public void onSetBase(BukkitCommandActor actor) {
 
         final Player player = actor.requirePlayer();
-        final UUID playerUUID = player.getUniqueId();
-
-        if(!clanManager.hasClan(player)) {
-            actor.reply(ChatColor.RED + "You aren't in any clan.");
-            return;
-        }
-
         final Clan clan = Objects.requireNonNull(clanManager.getClan(player));
-
-        if(!clan.hasRole(playerUUID, Role.OFFICIER)) {
-            actor.reply(ChatColor.RED + "You need to be at least an officier to do that.");
-            return;
-        }
 
         clan.setBaseLocation(player.getLocation());
         actor.reply(ChatColor.GREEN + "The base location has been successfully set at your location.");
     }
 
+    @RequireClan
     @Subcommand("base")
     @Usage("base")
     public void onBase(BukkitCommandActor actor) {
         final Player player = actor.requirePlayer();
-
-        if(!clanManager.hasClan(player)) {
-            actor.reply(ChatColor.RED + "You aren't in any clan.");
-            return;
-        }
-
         final Clan clan = Objects.requireNonNull(clanManager.getClan(player));
 
         if(clan.getBaseLocation() == null) {

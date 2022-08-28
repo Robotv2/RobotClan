@@ -1,5 +1,7 @@
 package fr.robotv2.robotclan.command;
 
+import fr.robotv2.robotclan.condition.annotation.RequireClan;
+import fr.robotv2.robotclan.condition.annotation.RequireRole;
 import fr.robotv2.robotclan.flag.Role;
 import fr.robotv2.robotclan.manager.ClaimManager;
 import fr.robotv2.robotclan.manager.ClanManager;
@@ -17,7 +19,6 @@ import revxrsal.commands.bukkit.BukkitCommandActor;
 
 import java.util.Objects;
 import java.util.Queue;
-import java.util.UUID;
 
 @Command({"clan", "robotclan"})
 public class ClanClaimCommand {
@@ -28,25 +29,14 @@ public class ClanClaimCommand {
     @Dependency
     private ClaimManager claimManager;
 
+    @RequireClan
+    @RequireRole(role = Role.OFFICIER)
     @Subcommand("claim")
     @Usage("claim")
     public void onClaim(BukkitCommandActor actor) {
 
         final Player player = actor.requirePlayer();
-        final UUID playerUUID = player.getUniqueId();
-
-        if(!clanManager.hasClan(player)) {
-            actor.reply(ChatColor.RED + "You aren't in any clan.");
-            return;
-        }
-
         final Clan clan = Objects.requireNonNull(clanManager.getClan(player));
-
-        if(!clan.hasRole(playerUUID, Role.OFFICIER)) {
-            actor.reply(ChatColor.RED + "You need to be at least an officier to do that.");
-            return;
-        }
-
         final Chunk chunk = player.getChunk();
 
         if(claimManager.isClaimed(chunk)) {
@@ -58,25 +48,14 @@ public class ClanClaimCommand {
         actor.reply(ChatColor.GREEN + "This chunk has been claimed successfully.");
     }
 
+    @RequireClan
+    @RequireRole(role = Role.OFFICIER)
     @Subcommand("unclaim")
     @Usage("unclaim")
     public void onUnclaim(BukkitCommandActor actor) {
 
         final Player player = actor.requirePlayer();
-        final UUID playerUUID = player.getUniqueId();
-
-        if(!clanManager.hasClan(player)) {
-            actor.reply(ChatColor.RED + "You aren't in any clan.");
-            return;
-        }
-
         final Clan clan = Objects.requireNonNull(clanManager.getClan(player));
-
-        if(!clan.hasRole(playerUUID, Role.OFFICIER)) {
-            actor.reply(ChatColor.RED + "You need to be at least an officier to do that.");
-            return;
-        }
-
         final Claim claim = this.claimManager.getClaim(player.getChunk());
 
         if(claim == null || !clan.getClaims().contains(claim)) {

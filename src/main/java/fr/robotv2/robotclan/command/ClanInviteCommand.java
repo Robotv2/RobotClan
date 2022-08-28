@@ -2,6 +2,8 @@ package fr.robotv2.robotclan.command;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import fr.robotv2.robotclan.condition.annotation.RequireClan;
+import fr.robotv2.robotclan.condition.annotation.RequireRole;
 import fr.robotv2.robotclan.flag.Role;
 import fr.robotv2.robotclan.manager.ClaimManager;
 import fr.robotv2.robotclan.manager.ClanManager;
@@ -9,7 +11,11 @@ import fr.robotv2.robotclan.objects.Clan;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import revxrsal.commands.annotation.*;
+import revxrsal.commands.annotation.AutoComplete;
+import revxrsal.commands.annotation.Command;
+import revxrsal.commands.annotation.Dependency;
+import revxrsal.commands.annotation.Subcommand;
+import revxrsal.commands.annotation.Usage;
 import revxrsal.commands.bukkit.BukkitCommandActor;
 
 import java.util.Objects;
@@ -29,6 +35,7 @@ public class ClanInviteCommand {
             .expireAfterWrite(20, TimeUnit.SECONDS)
             .build();
 
+    @RequireClan
     @Subcommand("kick")
     @Usage("kick <player>")
     @AutoComplete("@players")
@@ -37,11 +44,6 @@ public class ClanInviteCommand {
         final Player player = actor.requirePlayer();
         final UUID playerUUID = player.getUniqueId();
         final UUID targetUUID = offlinePlayer.getUniqueId();
-
-        if(!clanManager.hasClan(player)) {
-            actor.reply(ChatColor.RED + "You aren't in any clan.");
-            return;
-        }
 
         if(Objects.equals(playerUUID, targetUUID)) {
             actor.reply(ChatColor.RED + "You can't kick yourself.");
@@ -64,25 +66,15 @@ public class ClanInviteCommand {
         }
     }
 
+    @RequireClan
+    @RequireRole(role = Role.OFFICIER)
     @Subcommand("invite")
     @Usage("invite <player>")
     @AutoComplete("@players")
     public void onInvite(BukkitCommandActor actor, Player target) {
 
         final Player player = actor.requirePlayer();
-        final UUID playerUUID = player.getUniqueId();
-
-        if(!clanManager.hasClan(player)) {
-            actor.reply(ChatColor.RED + "You aren't in any clan.");
-            return;
-        }
-
         final Clan clan = Objects.requireNonNull(clanManager.getClan(player));
-
-        if(!clan.hasRole(playerUUID, Role.OFFICIER)) {
-            actor.reply(ChatColor.RED + "You need to be at least an officier to do that.");
-            return;
-        }
 
         if(clanManager.hasClan(target)) {
             actor.reply(ChatColor.RED + "The target is already in a clan.");

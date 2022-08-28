@@ -3,6 +3,9 @@ package fr.robotv2.robotclan;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
 import com.j256.ormlite.support.ConnectionSource;
 import fr.robotv2.robotclan.command.*;
+import fr.robotv2.robotclan.condition.RequireClanCondition;
+import fr.robotv2.robotclan.condition.RequireRoleCondition;
+import fr.robotv2.robotclan.condition.exception.ClanExceptionHandler;
 import fr.robotv2.robotclan.data.OrmData;
 import fr.robotv2.robotclan.listeners.*;
 import fr.robotv2.robotclan.manager.ClaimManager;
@@ -85,6 +88,10 @@ public final class RobotClan extends JavaPlugin {
         handler.register(new ClanClaimCommand());
         handler.register(new ClanChatCommand());
         handler.register(new ClanFlagCommand());
+
+        handler.registerCondition(new RequireClanCondition());
+        handler.registerCondition(new RequireRoleCondition());
+        handler.setExceptionHandler(new ClanExceptionHandler());
     }
 
     private void setupListeners() {
