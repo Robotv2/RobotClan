@@ -12,6 +12,8 @@ import fr.robotv2.robotclan.manager.ClaimManager;
 import fr.robotv2.robotclan.manager.ClanManager;
 import fr.robotv2.robotclan.objects.Claim;
 import fr.robotv2.robotclan.objects.Clan;
+import fr.robotv2.robotclan.ui.GuiManager;
+import fr.robotv2.robotclan.ui.stock.ClanFlagsUI;
 import fr.robotv2.robotclan.util.FileUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
@@ -23,7 +25,7 @@ import java.util.UUID;
 
 public final class RobotClan extends JavaPlugin {
 
-    private static RobotClan instance;
+    private final GuiManager guiManager = new GuiManager();
 
     private final ClaimManager claimManager = new ClaimManager();
     private final ClanManager clanManager = new ClanManager();
@@ -32,17 +34,15 @@ public final class RobotClan extends JavaPlugin {
     private OrmData<Clan, UUID> clanData;
 
     public static RobotClan get() {
-        return instance;
+        return JavaPlugin.getPlugin(RobotClan.class);
     }
 
     @Override
     public void onEnable() {
-        instance = this;
-
         this.setupCommands();
         this.setupListeners();
         this.setupDataManager();
-
+        this.setupUIs();
         Bukkit.getScheduler().runTaskTimer(this, this::saveAll, 20 * 60, 20 * 60);
     }
 
@@ -50,7 +50,6 @@ public final class RobotClan extends JavaPlugin {
     public void onDisable() {
         this.saveAll();
         getClaimData().closeConnection();
-        instance = null;
     }
 
     public void saveAll() {
@@ -76,6 +75,10 @@ public final class RobotClan extends JavaPlugin {
         return this.claimData;
     }
 
+    public GuiManager getGuiManager() {
+        return this.guiManager;
+    }
+
     // <<- SETUP ->>
 
     private void setupCommands() {
@@ -96,6 +99,7 @@ public final class RobotClan extends JavaPlugin {
 
     private void setupListeners() {
         final PluginManager pm = getServer().getPluginManager();
+        pm.registerEvents(this.guiManager, this);
         pm.registerEvents(new BlockListeners(this), this);
         pm.registerEvents(new EntityListeners(this), this);
         pm.registerEvents(new InteractListeners(this), this);
@@ -123,5 +127,9 @@ public final class RobotClan extends JavaPlugin {
             getLogger().warning("Couldn't connect to the database. Shutting down the plugin.");
             getServer().getPluginManager().disablePlugin(this);
         }
+    }
+
+    private void setupUIs() {
+        getGuiManager().addMenu(new ClanFlagsUI());
     }
 }

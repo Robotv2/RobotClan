@@ -150,7 +150,6 @@ public final class Clan {
         this.claimFlags.put(flag, role);
     }
 
-    @Nullable
     public Role getRequiredRole(ClaimFlag flag) {
         return this.claimFlags.getOrDefault(flag, flag.getDefault());
     }

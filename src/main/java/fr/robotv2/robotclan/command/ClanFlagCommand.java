@@ -1,11 +1,13 @@
 package fr.robotv2.robotclan.command;
 
+import fr.robotv2.robotclan.RobotClan;
 import fr.robotv2.robotclan.condition.annotation.RequireClan;
 import fr.robotv2.robotclan.condition.annotation.RequireRole;
 import fr.robotv2.robotclan.flag.ClaimFlag;
 import fr.robotv2.robotclan.flag.Role;
 import fr.robotv2.robotclan.manager.ClanManager;
 import fr.robotv2.robotclan.objects.Clan;
+import fr.robotv2.robotclan.ui.stock.ClanFlagsUI;
 import org.bukkit.ChatColor;
 import revxrsal.commands.annotation.Command;
 import revxrsal.commands.annotation.Dependency;
@@ -23,11 +25,20 @@ public class ClanFlagCommand {
 
     @RequireClan
     @RequireRole(role = Role.OWNER)
-    @Subcommand("flags")
+    @Subcommand("flag")
     @Usage("flags <claim-flag> <required-role>")
     public void onChangeFlag(BukkitCommandActor actor, ClaimFlag flag, Role role) {
         final Clan clan = Objects.requireNonNull(this.clanManager.getClan(actor.requirePlayer()));
         clan.setRequiredRole(flag, role);
-        actor.reply(ChatColor.GREEN + "The required role for the flag '" + flag.toString().toLowerCase() + " is now: " + role.toString().toLowerCase());
+        actor.reply(ChatColor.GREEN + "The required role for the flag '" + flag.toString().toLowerCase() + "' is now: " + role.toString().toLowerCase());
+    }
+
+    @RequireClan
+    @RequireRole(role = Role.OWNER)
+    @Subcommand("flags")
+    @Usage("flags")
+    public void onChangeFlag(BukkitCommandActor actor) {
+        final Clan clan = Objects.requireNonNull(this.clanManager.getClan(actor.requirePlayer()));
+        RobotClan.get().getGuiManager().open(actor.requirePlayer(), ClanFlagsUI.class, clan);
     }
 }

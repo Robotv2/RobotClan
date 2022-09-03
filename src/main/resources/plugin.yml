@@ -1,4 +1,5 @@
 name: RobotClan
 version: '${project.version}'
 main: fr.robotv2.robotclan.RobotClan
+api-version: 1.13
 authors: [ Robotv2 ]
